@@ -1,44 +1,41 @@
-import { createSupabaseServer } from "@/lib/supabase-server";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function DashboardPage() {
-  const supabase = createSupabaseServer();
+import { useRouter } from "next/navigation";
 
-  // Récupère la session côté serveur
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+export default function DashboardPage() {
+  const router = useRouter();
 
-  // Si pas connecté → redirection vers /login
-  if (!session) {
-    redirect("/login");
+  async function handleLogout() {
+    // Appelle l'API logout (endpoint route.ts)
+    await fetch("/logout", {
+      method: "POST",
+    });
+
+    // Redirection client
+    router.push("/login");
   }
 
-  const user = session.user;
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Bonjour, {user.email}</h1>
+    <div className="p-4">
+      <h1 className="text-xl font-semibold mb-4">
+        Bonjour, vous êtes connecté
+      </h1>
 
-      <div className="space-y-4">
-        <a
-          href="/api/logout"
-          className="inline-block bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Se déconnecter
-        </a>
+      <button
+        onClick={handleLogout}
+        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+      >
+        Se déconnecter
+      </button>
 
-        <div className="p-4 bg-gray-100 rounded">
-          <p className="text-gray-700">
-            Votre tableau de bord sera affiché ici :
-          </p>
-          <ul className="list-disc list-inside mt-2 text-gray-600">
-            <li>Historique des analyses</li>
-            <li>Bouton "Nouvelle analyse"</li>
-            <li>Scores IA</li>
-            <li>Conseils KDP personnalisés</li>
-          </ul>
-        </div>
+      <div className="mt-6">
+        <h2 className="text-lg font-medium">Votre tableau de bord sera affiché ici :</h2>
+        <ul className="list-disc ml-6 mt-2">
+          <li>Historique des analyses</li>
+          <li>Bouton « Nouvelle analyse »</li>
+          <li>Scores IA</li>
+          <li>Conseils KDP personnalisés</li>
+        </ul>
       </div>
     </div>
   );
